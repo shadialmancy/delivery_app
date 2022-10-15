@@ -1,3 +1,4 @@
+import 'package:delivery_app/model/restaurant.dart';
 import 'package:delivery_app/screens/homepage/restaurantpage/cart_page.dart';
 import 'package:delivery_app/screens/homepage/restaurantpage/information_page.dart';
 import 'package:delivery_app/screens/homepage/restaurantpage/order_food_page.dart';
@@ -7,7 +8,8 @@ import 'package:delivery_app/theme/text_style.dart';
 import "package:flutter/material.dart";
 
 class RestaurantPage extends StatefulWidget {
-  const RestaurantPage({super.key});
+  List restModel;
+  RestaurantPage({required this.restModel, super.key});
 
   @override
   State<RestaurantPage> createState() => _RestaurantPageState();

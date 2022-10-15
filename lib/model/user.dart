@@ -6,7 +6,7 @@ class UserModel {
     required this.password,
   });
 
-  factory UserModel.fromJson(Map json) {
+  factory UserModel.fromMap(Map json) {
     return UserModel(email: json["email"], password: json["password"]);
   }
 }

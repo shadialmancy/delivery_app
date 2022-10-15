@@ -21,7 +21,7 @@ class RegisterCubit extends Cubit<RegisterState> {
       Map data = json.decode(response.body);
       if (response.statusCode == 200) {
         data.forEach((key, value) {
-          user.add(UserModel.fromJson(value));
+          user.add(UserModel.fromMap(value));
         });
       }
     } catch (e) {

@@ -1,9 +1,12 @@
+import 'package:delivery_app/bloc/category/maincategory/category_bloc.dart';
+import 'package:delivery_app/bloc/category/subcategory/subcategory_bloc.dart';
 import 'package:delivery_app/screens/homepage/home_page.dart';
 import 'package:delivery_app/theme/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'controller/auth/login/login_cubit.dart';
-import 'controller/auth/register/register_cubit.dart';
+import 'bloc/auth/login/login_cubit.dart';
+import 'bloc/auth/register/register_cubit.dart';
+import 'bloc/restaurant/restaurant_bloc.dart';
 
 void main() {
   runApp(const MyApp());
@@ -28,6 +31,15 @@ class MyApp extends StatelessWidget {
           ),
           BlocProvider(
             create: (context) => RegisterCubit(),
+          ),
+          BlocProvider(
+            create: (context) => CategoryBloc(),
+          ),
+          BlocProvider(
+            create: (context) => SubCategoryBloc(),
+          ),
+          BlocProvider(
+            create: (context) => RestaurantBloc()..add(LoadRestaurant()),
           ),
         ],
         child: const HomePage(),

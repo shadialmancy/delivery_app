@@ -1,3 +1,6 @@
+import 'package:delivery_app/bloc/category/maincategory/category_bloc.dart';
+import 'package:delivery_app/bloc/category/subcategory/subcategory_bloc.dart';
+import 'package:delivery_app/bloc/restaurant/restaurant_bloc.dart';
 import 'package:delivery_app/screens/homepage/restaurantpage/restaurant_page.dart';
 import 'package:delivery_app/screens/homepage/searchpage/search_page.dart';
 import 'package:delivery_app/widgets/bottom_navigation_bar.dart';
@@ -8,7 +11,7 @@ import 'package:delivery_app/dummy/resturant_json.dart';
 import 'package:delivery_app/dummy/subcategory_json.dart';
 import 'package:delivery_app/theme/colors.dart';
 import 'package:delivery_app/theme/text_style.dart';
-
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../widgets/textfield.dart';
 
 class HomePage extends StatefulWidget {
@@ -82,34 +85,50 @@ class _HomePageState extends State<HomePage> {
         const SizedBox(
           height: 10,
         ),
-        SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Padding(
-              padding: const EdgeInsets.only(left: 10.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: List.generate(categoryJSON.length, (index) {
-                  return GestureDetector(
-                    onTap: () {
-                      for (var element in categoryJSON) {
-                        element["isSelected"] = false;
-                      }
-                      categoryJSON[index]["isSelected"] =
-                          !categoryJSON[index]["isSelected"];
+        BlocBuilder<CategoryBloc, CategoryState>(
+          builder: (context, state) {
+            if (state is CategoryLoaded) {
+              return SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 10.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children:
+                          List.generate(state.categoryList.length, (index) {
+                        return GestureDetector(
+                          onTap: () {
+                            context.read<CategoryBloc>().index = index;
+                            context.read<CategoryBloc>().add(CategorySelected(
+                                categorylist: state.categoryList));
+                            // for (var element in categoryJSON) {
+                            //   element["isSelected"] = false;
+                            // }
+                            // categoryJSON[index]["isSelected"] =
+                            //     !categoryJSON[index]["isSelected"];
 
-                      setState(() {});
-                    },
-                    child: categoryJSON[index]["isSelected"]!
-                        ? buildCategory(categoryJSON[index]["name"]!,
-                            categoryJSON[index]["image"]!, secondary)
-                        : buildCategory(
-                            categoryJSON[index]["name"]!,
-                            categoryJSON[index]["image"]!,
-                            black.withOpacity(0.05)),
-                  );
-                }),
-              ),
-            )),
+                            // setState(() {});
+                          },
+                          child: state.categoryList[index]["isSelected"]!
+                              ? buildCategory(
+                                  state.categoryList[index]["name"]!,
+                                  state.categoryList[index]["image"]!,
+                                  secondary)
+                              : buildCategory(
+                                  state.categoryList[index]["name"]!,
+                                  state.categoryList[index]["image"]!,
+                                  black.withOpacity(0.05)),
+                        );
+                      }),
+                    ),
+                  ));
+            } else {
+              return const Center(
+                child: Text("Something went wrong"),
+              );
+            }
+          },
+        ),
         const SizedBox(
           height: 20,
         ),
@@ -123,29 +142,39 @@ class _HomePageState extends State<HomePage> {
         const SizedBox(
           height: 20,
         ),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Padding(
-            padding: const EdgeInsets.only(left: 10.0),
-            child: Column(children: [
-              Row(
-                children: List.generate(subCategoryJSON.length, (index) {
-                  return index % 2 == 0
-                      ? rowBuildSubCategory(subCategoryJSON[index]["image"]!,
-                          subCategoryJSON[index]["name"]!)
-                      : Container();
-                }),
-              ),
-              Row(
-                children: List.generate(subCategoryJSON.length, (index) {
-                  return index % 2 == 1
-                      ? rowBuildSubCategory(subCategoryJSON[index]["image"]!,
-                          subCategoryJSON[index]["name"]!)
-                      : Container();
-                }),
-              ),
-            ]),
-          ),
+        BlocBuilder<SubCategoryBloc, SubCategoryState>(
+          builder: (context, state) {
+            if (state is SubCategoryInitial) {
+              return SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 10.0),
+                  child: Column(children: [
+                    Row(
+                      children: List.generate(state.subCategoryList.length ~/ 2,
+                          (index) {
+                        return rowBuildSubCategory(
+                            state.subCategoryList[index]["image"]!,
+                            state.subCategoryList[index]["name"]!);
+                      }),
+                    ),
+                    Row(
+                      children: List.generate(state.subCategoryList.length ~/ 2,
+                          (index) {
+                        return rowBuildSubCategory(
+                            state.subCategoryList[index + 3]["image"]!,
+                            state.subCategoryList[index + 3]["name"]!);
+                      }),
+                    ),
+                  ]),
+                ),
+              );
+            } else {
+              return const Center(
+                child: Text("Something went wrong"),
+              );
+            }
+          },
         ),
         const SizedBox(
           height: 20,
@@ -154,21 +183,45 @@ class _HomePageState extends State<HomePage> {
         const SizedBox(
           height: 20,
         ),
-        Padding(
-          padding: const EdgeInsets.only(left: 20),
-          child: Column(
-            children: List.generate(resturantJSON.length, (index) {
-              return GestureDetector(
-                onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const RestaurantPage(),
-                    )),
-                child: buildTile(resturantJSON[index]["name"]!,
-                    resturantJSON[index]["image"]!),
+        BlocBuilder<RestaurantBloc, RestaurantState>(
+          builder: (context, state) {
+            if (state is RestaurantLoaded) {
+              return Padding(
+                padding: const EdgeInsets.only(left: 20),
+                child: Column(
+                  children: List.generate(state.restaurantlist.length, (index) {
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => RestaurantPage(
+                                  restModel: state.restaurantlist),
+                            ));
+                      },
+                      child: buildTile(
+                          state.restaurantlist[index].name,
+                          state.restaurantlist[index].image,
+                          state.restaurantlist[index].location,
+                          state.restaurantlist[index].deliveryTime,
+                          state.restaurantlist[index].distance,
+                          state.restaurantlist[index].rating),
+                    );
+                  }),
+                ),
               );
-            }),
-          ),
+            } else if (state is RestaurantLoading) {
+              return const Center(
+                  child: SizedBox(
+                      width: 200,
+                      height: 200,
+                      child: CircularProgressIndicator()));
+            } else {
+              return const Center(
+                child: Text("Something went wrong!"),
+              );
+            }
+          },
         ),
         const SizedBox(
           height: 20,
@@ -294,7 +347,8 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget buildTile(String name, String image) {
+  Widget buildTile(String name, String image, String location,
+      String deliveryTime, String distance, String rating) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Row(
@@ -304,7 +358,7 @@ class _HomePageState extends State<HomePage> {
             height: 100,
             decoration: BoxDecoration(
                 image: DecorationImage(
-                  image: AssetImage(image),
+                  image: NetworkImage(image),
                 ),
                 borderRadius: BorderRadius.circular(15)),
           ),
@@ -331,7 +385,9 @@ class _HomePageState extends State<HomePage> {
                         color: black.withOpacity(0.3),
                       ),
                       Text(
-                        "13th Street, 47 W 13th St, NY",
+                        location.length > 10
+                            ? "${location.substring(0, 20)}..."
+                            : location,
                         style: customTxtStyle(15, black.withOpacity(0.3)),
                       ),
                     ],
@@ -343,7 +399,7 @@ class _HomePageState extends State<HomePage> {
                         color: black.withOpacity(0.3),
                       ),
                       Text(
-                        "3 min - 1.5km",
+                        "$deliveryTime - $distance",
                         style: customTxtStyle(15, black.withOpacity(0.3)),
                       ),
                     ],
@@ -352,9 +408,8 @@ class _HomePageState extends State<HomePage> {
                     children: [
                       Row(
                         children: List.generate(5, (index) {
-                          int selectedIndex = 3;
                           return Icon(
-                            selectedIndex >= index
+                            double.parse(rating).round() > index
                                 ? Icons.star
                                 : Icons.star_border,
                             size: 20,
@@ -366,7 +421,7 @@ class _HomePageState extends State<HomePage> {
                         width: 5,
                       ),
                       Text(
-                        "(4.6)",
+                        "($rating)",
                         style: customTxtStyle(13, black.withOpacity(0.3)),
                       )
                     ],

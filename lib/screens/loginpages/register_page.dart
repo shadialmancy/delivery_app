@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-import '../../controller/auth/register/register_cubit.dart';
+import '../../bloc/auth/register/register_cubit.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
